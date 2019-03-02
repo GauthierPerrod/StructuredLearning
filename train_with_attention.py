@@ -27,4 +27,43 @@ In this script, we train the model WITH the attention layer
 
 
 
+from torch import nn
 import torch.backends.cudnn as cudnn
+import torch.optim
+import torch.utils.data
+import torchvision.transforms as transforms
+from torch.nn.utils.rnn import pack_padded_sequence
+
+from model import Encoder, DecoderWithAttention
+from datasets import CaptionDataset
+from nltk.translate.bleu_score import corpus_bleu
+
+
+
+#=========================================================================================================
+#=========================================================================================================
+#================================ 1. HYPERPARAMETERS
+
+
+
+
+
+
+
+
+
+#=========================================================================================================
+#=========================================================================================================
+#================================ 2. DEFINING ARCHITECTURE
+
+
+
+
+
+
+
+
+
+#=========================================================================================================
+#=========================================================================================================
+#================================ 3. TRAINING

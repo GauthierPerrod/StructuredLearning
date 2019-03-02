@@ -52,7 +52,7 @@ class Encoder(nn.Module):
     def __init__(self, output_size=12):
         super(Encoder, self).__init__()
 
-        resnet = torchvision.models.resnet101(pretrained=True)
+        resnet = torchvision.models.resnet101(pretrained=False)
 
         # Remove linear and pool layers to have a fully convolutional network
         fully_convolutional_modules = list(resnet.children())[:-2]
@@ -415,9 +415,6 @@ class Decoder(nn.Module):
         # Final prediction word-by-word
         for t in range(max(decode_lengths)):
             batch_size_t = sum([l > t for l in decode_lengths])
-            prediction[[:batch_size_t, t, :]] = self.classifier( self.dropout(out[:batch_size_t, t, :]) )
+            prediction[:batch_size_t, t, :] = self.classifier( self.dropout(out[:batch_size_t, t, :]) )
 
         return predictions, encoded_captions, decode_lengths, sort_ind
-
-
-
