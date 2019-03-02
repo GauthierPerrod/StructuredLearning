@@ -49,7 +49,7 @@ class Encoder(nn.Module):
     Pretrained feature extractor for images and return them as
     same size encoded tensors
     """
-    def __init__(self, output_size=12):
+    def __init__(self, output_size=10):
         super(Encoder, self).__init__()
 
         resnet = torchvision.models.resnet101(pretrained=False)

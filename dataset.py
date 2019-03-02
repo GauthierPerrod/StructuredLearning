@@ -44,8 +44,6 @@ import os
 #================================ 1. CAPTION DATASET
 
 
-
-MAX_LEN = 30
 MIN_WORD_FREQ = 5
 N_CAPTIONS = 5
 
@@ -111,7 +109,7 @@ class CaptionDataset(Dataset):
                 self.captions[((i // self.cpi) * self.cpi):(((i // self.cpi) * self.cpi) + self.cpi)])
 
             return img, caption, caplen, all_captions
-            
+
 
     def __len__(self):
         return self.dataset_size
