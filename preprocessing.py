@@ -18,7 +18,7 @@ https://github.com/Hvass-Labs/TensorFlow-Tutorials/blob/master/22_Image_Captioni
 https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Image-Captioning
 
 In this script, we preprocess the image, pass them through the encoder and save the output.
-We do this save time during training.
+We do this save time during training since there is only the decoder and the attention to train!
 """
 
 
