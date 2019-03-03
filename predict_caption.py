@@ -27,3 +27,31 @@ In this script, we implement two methods to predict a caption given a sentence:
 #=========================================================================================================
 #=========================================================================================================
 #================================ 0. MODULE
+
+
+
+#=========================================================================================================
+#=========================================================================================================
+#================================ 1. ACCURACY
+
+
+def accuracy(scores, targets, k):
+    """
+    Computes top-k accuracy, from predicted and true labels.
+
+    Arguments:
+    ----------
+    scores: scores from the model
+    targets: true labels
+    k: k in top-k accuracy
+
+    Return:
+    -------
+    top-k accuracy
+    """
+
+    batch_size = targets.size(0)
+    _, ind = scores.topk(k, 1, True, True)
+    correct = ind.eq(targets.view(-1, 1).expand_as(ind))
+    correct_total = correct.view(-1).float().sum() 
+    return correct_total.item() * (100.0 / batch_size)

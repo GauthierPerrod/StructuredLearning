@@ -276,4 +276,5 @@ def load_embeddings(emb_file, word_map):
 
 
 if __name__ == "__main__":
-    create_data()
+    # create_data()
+    load_embeddings(emb_file, word_map)
