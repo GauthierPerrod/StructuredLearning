@@ -59,12 +59,14 @@ data_folder = '/home/hugoperrin/Bureau/Datasets/Coco/data/'
 MIN_WORD_FREQ = 5
 N_CAPTIONS = 5
 base_filename = 'COCO_' + str(N_CAPTIONS) + '_cap_per_img_' + str(MIN_WORD_FREQ) + '_min_word_freq'
+embedding_file = '/home/hugoperrin/Bureau/Datasets/Glove/glove.6B.200d.txt'
 
 # Model
-EMBBEDING_DIM = 512
+ENCODER_DIM = 2048      # ResNet
+EMBBEDING_DIM = 200
 ATTENTION_DIM = 512  
 DECODER_DIM = 512
-DROPOUT = 0.5
+DROPOUT = 0.3
 DEVICE = 'cuda:0'  
 cudnn.benchmark = True
 
@@ -75,7 +77,7 @@ LEARNING_RATE = 5e-4
 
 GRAD_CLIP = 5.    
 ALPHA = 1.              # regularization parameter for 'doubly stochastic attention', as in the paper
-DISPLAY_STEP = 100
+DISPLAY_STEP = 10
 
 
 
@@ -89,19 +91,19 @@ DISPLAY_STEP = 100
 word_map_file = os.path.join(data_folder, 'WORDMAP_' + base_filename + '.json')
 with open(word_map_file, 'r') as j:
     word_map = json.load(j)
-
-# Read embedding
-
+vocab_size = len(word_map)
 
 # Networks
-decoder = DecoderWithAttention().to(device)
-encoder = Encoder().to(device)
+decoder = DecoderWithAttention(ATTENTION_DIM, EMBBEDING_DIM, DECODER_DIM, 
+                               vocab_size, ENCODER_DIM, DROPOUT).to(DEVICE)
+encoder = Encoder(output_size=10).to(DEVICE)
 
 # Embedding
-decoder.load_pretrained_embeddings()
+embedding, _ = load_embeddings(embedding_file, data_folder)
+decoder.load_pretrained_embeddings(embedding)
 
 # Loss function
-criterion = nn.CrossEntropyLoss().to(device)
+criterion = nn.CrossEntropyLoss().to(DEVICE)
 
 # Data loader
 train_loader = torch.utils.data.DataLoader( 
@@ -114,6 +116,11 @@ valid_loader = torch.utils.data.DataLoader(
 
 # Optimizer
 optimizer = torch.optim.Adam(encoder.parameters(), lr=LEARNING_RATE)
+
+# Parameters check
+model_parameters = filter(lambda p: p.requires_grad, decoder.parameters())
+params = sum([np.prod(p.size()) for p in model_parameters])
+print('>> {} parameters\n'.format(params))
 
 
 
@@ -132,9 +139,9 @@ for epoch in EPOCHS:
     for i, (image, caption, length) in enumerate(train_loader):
 
         # Batch data
-        image = image.to(device)
-        caption = caption.to(device)
-        length = length.to(device)
+        image = image.to(DEVICE)
+        caption = caption.to(DEVICE)
+        length = length.to(DEVICE)
 
         # Forward
         encoded_image = encoder(image)
@@ -180,9 +187,9 @@ for epoch in EPOCHS:
     for i, (image, caption, length, allcaptions) in enumerate(valid_loader):
 
         # Batch data
-        image = image.to(device)
-        caption = caption.to(device)
-        length = length.to(device)
+        image = image.to(DEVICE)
+        caption = caption.to(DEVICE)
+        length = length.to(DEVICE)
 
         # Forward
         encoded_image = encoder(image)

@@ -227,14 +227,14 @@ def init_embedding(embeddings):
 
 
 
-def load_embeddings(emb_file, word_map):
+def load_embeddings(emb_file, folder):
     """
     Creates an embedding tensor for the specified word map, for loading into the model.
 
     Argument:
     ---------
     emb_file: file containing embeddings (stored in GloVe format)
-    word_map: word map
+    folder: folder containing the word map
     
     Return:
     -------
@@ -244,6 +244,11 @@ def load_embeddings(emb_file, word_map):
     # Find embedding dimension
     with open(emb_file, 'r') as f:
         emb_dim = len(f.readline().split(' ')) - 1
+
+    # Open vocab
+    word_map_file = os.path.join(folder, 'WORDMAP_' + base_filename + '.json')
+    with open(word_map_file, 'r') as j:
+        word_map = json.load(j)
 
     vocab = set(word_map.keys())
 
@@ -269,6 +274,21 @@ def load_embeddings(emb_file, word_map):
 
 
 
+def print_closest(word_map, word, n=10):
+    """
+    Sanity check for the pre-trained embedding:
+        >> WORKING
+    """
+    word_idx = {i: v for v, i in word_map.items()}
+    idx = word_map[word]
+    vector = embedding[idx]
+    distances = torch.pairwise_distance(embedding, vector)
+    _, idx = distances.sort(descending=False)
+    for k in range(n):
+        print(word_idx[idx[k].item()])
+
+
+
 #=========================================================================================================
 #=========================================================================================================
 #================================ 3. MAIN
@@ -276,5 +296,4 @@ def load_embeddings(emb_file, word_map):
 
 
 if __name__ == "__main__":
-    # create_data()
-    load_embeddings(emb_file, word_map)
+    create_data()

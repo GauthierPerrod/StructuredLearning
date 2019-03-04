@@ -296,17 +296,14 @@ class Decoder(nn.Module):
 
     RNN taking the encoded images as input to predict corresponding sentences without attention mechanism
     """
-    def __init__(self, attention_dim, embedding_dim, decoder_dim, vocab_size, encoder_dim=2048, dropout=0.3):
+    def __init__(self, embedding_dim, decoder_dim, vocab_size, encoder_dim=2048, dropout=0.3):
         super(Decoder, self).__init__()
 
         self.encoder_dim = encoder_dim
-        self.attention_dim = attention_dim
         self.embedding_dim = embedding_dim
         self.decoder_dim = decoder_dim
         self.vocab_size = vocab_size
         self.dropout = dropout
-
-        self.attention = Attention(encoder_dim, decoder_dim, attention_dim)  # attention network
 
         self.embedding = nn.Embedding(vocab_size, embedding_dim)  # embedding layer
 
