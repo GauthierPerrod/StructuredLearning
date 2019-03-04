@@ -257,7 +257,6 @@ def load_embeddings(emb_file, folder):
     init_embedding(embeddings)
 
     # Read embedding file
-    print("\nLoading embeddings...")
     for line in open(emb_file, 'r'):
         line = line.split(' ')
 

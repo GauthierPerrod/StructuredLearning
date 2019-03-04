@@ -28,6 +28,11 @@ In this script, we train the model WITHOUT the attention layer
 
 
 
+import os 
+import json
+
+import numpy as np
+
 from torch import nn
 import torch.backends.cudnn as cudnn
 import torch.optim
@@ -37,6 +42,8 @@ from torch.nn.utils.rnn import pack_padded_sequence
 
 from model import Encoder, Decoder
 from dataset import CaptionDataset
+from predict_caption import accuracy
+from preprocessing import load_embeddings
 from nltk.translate.bleu_score import corpus_bleu
 
 from datetime import datetime
@@ -46,7 +53,7 @@ def diff(t_a, t_b):
     t_diff = relativedelta(t_a, t_b)
     return '{h}h {m}m {s}s'.format(h=t_diff.hours, m=t_diff.minutes, s=t_diff.seconds)
 
-    
+
 
 #=========================================================================================================
 #=========================================================================================================
@@ -55,9 +62,10 @@ def diff(t_a, t_b):
 
 
 # Data
-data_folder = '/home/hugoperrin/Bureau/Datasets/Coco/data/'
+DATA_FOLDER = '/home/hugoperrin/Bureau/Datasets/Coco/data/'
 MIN_WORD_FREQ = 5
 N_CAPTIONS = 5
+
 base_filename = 'COCO_' + str(N_CAPTIONS) + '_cap_per_img_' + str(MIN_WORD_FREQ) + '_min_word_freq'
 embedding_file = '/home/hugoperrin/Bureau/Datasets/Glove/glove.6B.200d.txt'
 
@@ -70,13 +78,12 @@ DEVICE = 'cuda:0'
 cudnn.benchmark = True
 
 # Training
-EPOCH = 50 
-BATCH_SIZE = 32
+EPOCHS = 50 
+BATCH_SIZE = 64
 LEARNING_RATE = 5e-4
 
 GRAD_CLIP = 5.    
-BB = 0.                 # BLEU-4 score right now
-DISPLAY_STEP = 100
+DISPLAY_STEP = 10
 
 
 
@@ -87,30 +94,36 @@ DISPLAY_STEP = 100
 
 
 # Read word map
-word_map_file = os.path.join(data_folder, 'WORDMAP_' + base_filename + '.json')
+print('\nLoading word map', end='...')
+word_map_file = os.path.join(DATA_FOLDER, 'WORDMAP_' + base_filename + '.json')
 with open(word_map_file, 'r') as j:
     word_map = json.load(j)
 vocab_size = len(word_map)
+print('done')
 
 # Networks
-decoder = Decoder(EMBBEDING_DIM, DECODER_DIM, vocab_size, ENCODER_DIM, DROPOUT).to(DEVICE)
-encoder = Encoder(output_size=10).to(DEVICE)
+print('Loading networks', end='...')
+decoder = Decoder(EMBBEDING_DIM, DECODER_DIM, vocab_size, ENCODER_DIM, DROPOUT)
+encoder = Encoder(output_size=10)
+print('done')
 
 # Embedding
-embedding, _ = load_embeddings(embedding_file, data_folder)
+print('Load embeddings', end='...')
+embedding, _ = load_embeddings(embedding_file, DATA_FOLDER)
 decoder.load_pretrained_embeddings(embedding)
+print('done')
 
 # Loss function
 criterion = nn.CrossEntropyLoss().to(DEVICE)
 
 # Data loader
 train_loader = torch.utils.data.DataLoader( 
-        CaptionDataset(data_folder, data_name, 'TRAIN'), 
-        batch_size=batch_size, shuffle=True, num_workers=1, pin_memory=True)
+        CaptionDataset(DATA_FOLDER, 'TRAIN'), 
+        batch_size=BATCH_SIZE, shuffle=True, num_workers=1, pin_memory=True)
 
 valid_loader = torch.utils.data.DataLoader(
-        CaptionDataset(data_folder, data_name, 'VAL'),
-        batch_size=batch_size, shuffle=True, num_workers=1, pin_memory=True)
+        CaptionDataset(DATA_FOLDER, 'VAL'),
+        batch_size=BATCH_SIZE, shuffle=True, num_workers=1, pin_memory=True)
 
 # Optimizer
 optimizer = torch.optim.Adam(encoder.parameters(), lr=LEARNING_RATE)
@@ -118,7 +131,10 @@ optimizer = torch.optim.Adam(encoder.parameters(), lr=LEARNING_RATE)
 # Parameters check
 model_parameters = filter(lambda p: p.requires_grad, decoder.parameters())
 params = sum([np.prod(p.size()) for p in model_parameters])
-print('>> {} parameters\n'.format(params))
+print('\n>> {} parameters\n'.format(params))
+
+encoder = encoder.to(DEVICE)
+decoder = decoder.to(DEVICE)
 
 
 
@@ -127,7 +143,7 @@ print('>> {} parameters\n'.format(params))
 #================================ 3. TRAINING
 
 
-for epoch in EPOCHS:
+for epoch in range(EPOCHS):
     decoder.train()
     encoder.train()
     epoch_loss = 0.
@@ -179,6 +195,9 @@ for epoch in EPOCHS:
     decoder.eval()
     encoder.eval()
 
+    references = []
+    hypotheses = []
+
     for i, (image, caption, length, allcaptions) in enumerate(valid_loader):
 
         # Batch data
@@ -204,7 +223,7 @@ for epoch in EPOCHS:
             img_captions = allcaptions[j].tolist()
             img_captions = list(
                 map(lambda c: [w for w in c if w not in {word_map['<start>'], word_map['<pad>']}],
-                    img_caps))                                       # remove <start> and pads
+                    img_captions))                                       # remove <start> and pads
             references.append(img_captions)
 
         # Hypotheses
@@ -220,5 +239,5 @@ for epoch in EPOCHS:
     bleu4 = corpus_bleu(references, hypotheses)
 
     # Monitoring performance
-    print('Epoch: %2d, validation bleu-4 score: %.2f\n' % (bleu4))
+    print('Epoch: %2d, validation bleu-4 score: %.2f\n' % (epoch, bleu4))
     torch.save(decoder.state_dict(), "../models/image_captioning_{}.model".format(epoch))

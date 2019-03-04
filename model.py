@@ -309,7 +309,7 @@ class Decoder(nn.Module):
 
         self.dropout = nn.Dropout(p=self.dropout)
 
-        self.decode_step = nn.LSTM(embedding_dim + encoder_dim, decoder_dim, bias=True, batch_first=True)
+        self.decoder = nn.LSTM(embedding_dim, decoder_dim, bias=True, batch_first=True)
 
         self.init_h = nn.Linear(encoder_dim, decoder_dim)  # linear layer to find initial hidden state of LSTMCell (using encoding output)
         self.init_c = nn.Linear(encoder_dim, decoder_dim)  # linear layer to find initial cell state of LSTMCell (using encoding output)
@@ -397,7 +397,7 @@ class Decoder(nn.Module):
 
         # Initialize LSTM state
         h, c = self.init_hidden_state(encoder_out)  # (batch_size, decoder_dim)
-        hidden = (h.unsqueeze(1), c.unsqueeze(1))   # (batch_size, 1, decoder_dim) even when batch_first is set to True
+        hidden = (h.unsqueeze(0), c.unsqueeze(0))   # (1, batch_size, decoder_dim) even when batch_first is set to True
 
         # We won't decode at the <end> position, since we've finished generating as soon as we generate <end>
         # So, decoding lengths are actual lengths - 1
@@ -407,11 +407,11 @@ class Decoder(nn.Module):
         predictions = torch.zeros(batch_size, max(decode_lengths), vocab_size).to(device)
 
         # Apply LSTM
-        out, _ = self.decoder(embeddings, hidden)  # out: (batch_size, max_caption_length, embedding_dim)
+        out, _ = self.decoder(embeddings, hidden)    # out: (batch_size, max_caption_length, embedding_dim)
 
         # Final prediction word-by-word
         for t in range(max(decode_lengths)):
             batch_size_t = sum([l > t for l in decode_lengths])
-            prediction[:batch_size_t, t, :] = self.classifier( self.dropout(out[:batch_size_t, t, :]) )
+            predictions[:batch_size_t, t, :] = self.classifier( self.dropout(out[:batch_size_t, t, :]) )
 
         return predictions, encoded_captions, decode_lengths, sort_ind
