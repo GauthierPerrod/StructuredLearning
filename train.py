@@ -78,12 +78,13 @@ DEVICE = 'cuda:0'
 cudnn.benchmark = True
 
 # Training
-EPOCHS = 50 
+START_EPOCH = 0         # To resume training from a checkpoint
+EPOCHS = 100 
 BATCH_SIZE = 64
 LEARNING_RATE = 5e-4
 
 GRAD_CLIP = 5.    
-DISPLAY_STEP = 10
+DISPLAY_STEP = 20
 
 
 
@@ -104,8 +105,13 @@ print('done')
 # Networks
 print('Loading networks', end='...')
 decoder = Decoder(EMBBEDING_DIM, DECODER_DIM, vocab_size, ENCODER_DIM, DROPOUT)
-encoder = Encoder(output_size=10)
+encoder = Encoder(output_size=12)
 print('done')
+
+if START_EPOCH != 0:
+    print('Loading last model', end='...')
+    decoder.load_state_dict(torch.load('image_captioning_{}.model'.format(START_EPOCH)))
+    print('done')
 
 # Embedding
 print('Load embeddings', end='...')
@@ -187,7 +193,7 @@ for epoch in range(EPOCHS):
         epoch_loss += loss.data.item()
 
         if i % DISPLAY_STEP == DISPLAY_STEP-1:
-            print('training loss: %.3f' % (epoch_loss / i))
+            print('Step %4d, training loss: %.3f' % (i, epoch_loss / i))
 
     print('\nEpoch time: ', diff(datetime.now(), time))
 

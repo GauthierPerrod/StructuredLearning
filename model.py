@@ -52,7 +52,7 @@ class Encoder(nn.Module):
     def __init__(self, output_size=10):
         super(Encoder, self).__init__()
 
-        resnet = torchvision.models.resnet101(pretrained=False)
+        resnet = torchvision.models.resnet101(pretrained=True)
 
         # Remove linear and pool layers to have a fully convolutional network
         fully_convolutional_modules = list(resnet.children())[:-2]

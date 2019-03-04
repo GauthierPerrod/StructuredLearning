@@ -78,6 +78,7 @@ DEVICE = 'cuda:0'
 cudnn.benchmark = True
 
 # Training
+START_EPOCH = 0         # To resume training from a checkpoint
 EPOCHS = 50 
 BATCH_SIZE = 64
 LEARNING_RATE = 5e-4
@@ -108,6 +109,11 @@ decoder = DecoderWithAttention(ATTENTION_DIM, EMBBEDING_DIM, DECODER_DIM,
                                vocab_size, ENCODER_DIM, DROPOUT)
 encoder = Encoder(output_size=10)
 print('done')
+
+if START_EPOCH != 0:
+    print('Loading last model', end='...')
+    decoder.load_state_dict(torch.load('image_captioning_{}.model'.format(START_EPOCH)))
+    print('done')
 
 # Embedding
 print('Load embeddings', end='...')
@@ -192,7 +198,7 @@ for epoch in range(EPOCHS):
         epoch_loss += loss.data.item()
 
         if i % DISPLAY_STEP == DISPLAY_STEP-1:
-            print('training loss: %.3f' % (epoch_loss / i))
+            print('Step %4d, training loss: %.3f' % (i, epoch_loss / i))
 
     print('\nEpoch time: ', diff(datetime.now(), time))
 
@@ -228,7 +234,7 @@ for epoch in range(EPOCHS):
             img_captions = allcaptions[j].tolist()
             img_captions = list(
                 map(lambda c: [w for w in c if w not in {word_map['<start>'], word_map['<pad>']}],
-                    img_captions))                                       # remove <start> and pads
+                    img_captions))                                   # remove <start> and pads
             references.append(img_captions)
 
         # Hypotheses
