@@ -79,7 +79,7 @@ cudnn.benchmark = True
 
 # Training
 START_EPOCH = 0         # To resume training from a checkpoint
-EPOCHS = 50 
+N_EPOCHS = 50 
 BATCH_SIZE = 64
 LEARNING_RATE = 5e-4
 
@@ -151,7 +151,7 @@ decoder = decoder.to(DEVICE)
 #================================ 3. TRAINING
 
 
-for epoch in range(EPOCHS):
+for epoch in range(START_EPOCH, START_EPOCH + N_EPOCHS):
     decoder.train()
     encoder.train()
     epoch_loss = 0.
