@@ -55,9 +55,10 @@ warnings.filterwarnings('ignore')
 
 
 
-CAPTION_PATH = '/home/hugoperrin/Bureau/Datasets/Coco/caption_datasets/dataset_coco.json'
-IMAGE_PATH = '/home/hugoperrin/Bureau/Datasets/Coco/'
-OUTPUT_PATH = '/home/hugoperrin/Bureau/Datasets/Coco/data/'
+CAPTION_PATH = '../datasets/Coco/caption_datasets/dataset_coco.json'
+IMAGE_PATH = '../datasets/Coco/'
+OUTPUT_PATH = '../datasets/Coco/data/'
+
 
 ## Results in approximately 5Go
 TRAIN_SIZE = 10000

@@ -62,12 +62,12 @@ def diff(t_a, t_b):
 
 
 # Data
-DATA_FOLDER = '/home/hugoperrin/Bureau/Datasets/Coco/data/'
+DATA_FOLDER = '../datasets/Coco/data/'
 MIN_WORD_FREQ = 5
 N_CAPTIONS = 5
 
 base_filename = 'COCO_' + str(N_CAPTIONS) + '_cap_per_img_' + str(MIN_WORD_FREQ) + '_min_word_freq'
-embedding_file = '/home/hugoperrin/Bureau/Datasets/Glove/glove.6B.200d.txt'
+embedding_file = '../datasets/glove.6B.200d.txt'
 
 # Model
 ENCODER_DIM = 2048      # ResNet
