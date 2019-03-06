@@ -112,7 +112,7 @@ print('done')
 
 if START_EPOCH != 0:
     print('Loading last model', end='...')
-    decoder.load_state_dict(torch.load('image_captioning_{}.model'.format(START_EPOCH)))
+    decoder.load_state_dict(torch.load('../models/image_captioning_{}.model'.format(START_EPOCH)))
     print('done')
 
 # Embedding
