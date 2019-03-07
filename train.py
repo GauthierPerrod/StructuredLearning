@@ -132,7 +132,7 @@ valid_loader = torch.utils.data.DataLoader(
         batch_size=BATCH_SIZE, shuffle=True, num_workers=1, pin_memory=True)
 
 # Optimizer
-optimizer = torch.optim.Adam(encoder.parameters(), lr=LEARNING_RATE)
+optimizer = torch.optim.Adam(decoder.parameters(), lr=LEARNING_RATE)
 
 # Parameters check
 model_parameters = filter(lambda p: p.requires_grad, decoder.parameters())
@@ -185,15 +185,15 @@ for epoch in range(START_EPOCH, START_EPOCH + N_EPOCHS):
         # Backpropagation
         loss.backward()
 
-        # Take a optimizer step
-        optimizer.step()
-
         # Clipping to avoid exploding gradient
         for group in optimizer.param_groups:
             for param in group['params']:
                 if param.grad is not None:
                     param.grad.data.clamp_(-GRAD_CLIP, GRAD_CLIP)
 
+        # Take a optimizer step
+        optimizer.step()
+        
         # Monitoring performance
         epoch_loss += loss.data.item()
 
