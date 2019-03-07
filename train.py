@@ -84,7 +84,7 @@ BATCH_SIZE = 64
 LEARNING_RATE = 5e-4
 
 GRAD_CLIP = 5.    
-DISPLAY_STEP = 20
+DISPLAY_STEP = 100
 
 
 
@@ -139,6 +139,7 @@ model_parameters = filter(lambda p: p.requires_grad, decoder.parameters())
 params = sum([np.prod(p.size()) for p in model_parameters])
 print('\n>> {} parameters\n'.format(params))
 
+
 encoder = encoder.to(DEVICE)
 decoder = decoder.to(DEVICE)
 
@@ -175,14 +176,17 @@ for epoch in range(START_EPOCH, START_EPOCH + N_EPOCHS):
         scores, _ = pack_padded_sequence(scores, decode_lengths, batch_first=True)
         targets, _ = pack_padded_sequence(targets, decode_lengths, batch_first=True)
 
-        # Compute loss
-        loss = criterion(scores, targets)
-
         # Zero the parameter gradients
         optimizer.zero_grad()
 
+        # Compute loss
+        loss = criterion(scores, targets)
+
         # Backpropagation
         loss.backward()
+
+        # Take a optimizer step
+        optimizer.step()
 
         # Clipping to avoid exploding gradient
         for group in optimizer.param_groups:
@@ -194,7 +198,7 @@ for epoch in range(START_EPOCH, START_EPOCH + N_EPOCHS):
         epoch_loss += loss.data.item()
 
         if i % DISPLAY_STEP == DISPLAY_STEP-1:
-            print('Step %4d, training loss: %.3f' % (i, epoch_loss / i))
+            print('Step %4d, training loss: %.3f' % (i+1, epoch_loss / i))
 
     print('\nEpoch time: ', diff(datetime.now(), time))
 

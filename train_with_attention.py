@@ -176,17 +176,20 @@ for epoch in range(START_EPOCH, START_EPOCH + N_EPOCHS):
         scores, _ = pack_padded_sequence(scores, decode_lengths, batch_first=True)
         targets, _ = pack_padded_sequence(targets, decode_lengths, batch_first=True)
 
+        # Zero the parameter gradients
+        optimizer.zero_grad()
+
         # Compute loss
         loss = criterion(scores, targets)
 
         # Add doubly stochastic attention regularization
         loss += ALPHA * ((1. - alphas.sum(dim=1)) ** 2).mean()
 
-        # Zero the parameter gradients
-        optimizer.zero_grad()
-
         # Backpropagation
         loss.backward()
+
+        # Take a optimizer step
+        optimizer.step()
 
         # Clipping to avoid exploding gradient
         for group in optimizer.param_groups:
