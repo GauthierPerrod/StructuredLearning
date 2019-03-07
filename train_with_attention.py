@@ -203,7 +203,7 @@ for epoch in range(START_EPOCH, START_EPOCH + N_EPOCHS):
         epoch_loss += loss.data.item()
 
         if i % DISPLAY_STEP == DISPLAY_STEP-1:
-            print('Step %4d, training loss: %.3f' % (i, epoch_loss / i))
+            print('Step %4d, training loss: %.3f' % (i+1, epoch_loss / i))
 
     print('\nEpoch time: ', diff(datetime.now(), time))
 
