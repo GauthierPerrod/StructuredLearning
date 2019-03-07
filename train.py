@@ -114,10 +114,11 @@ if START_EPOCH != 0:
     print('done')
 
 # Embedding
-print('Load embeddings', end='...')
-embedding, _ = load_embeddings(embedding_file, DATA_FOLDER)
-decoder.load_pretrained_embeddings(embedding)
-print('done')
+if EMBBEDING_DIM == 200:
+    print('Load embeddings', end='...')
+    embedding, _ = load_embeddings(embedding_file, DATA_FOLDER)
+    decoder.load_pretrained_embeddings(embedding, fine_tune=True)
+    print('done')
 
 # Loss function
 criterion = nn.CrossEntropyLoss().to(DEVICE)

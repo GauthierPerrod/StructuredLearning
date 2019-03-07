@@ -60,10 +60,10 @@ IMAGE_PATH = '../datasets/Coco/'
 OUTPUT_PATH = '../datasets/Coco/data/'
 
 
-## Results in approximately 5Go
-TRAIN_SIZE = 10000
-TEST_SIZE = 1000
-VALID_SIZE = 1000
+## Results in approximately 10Go
+TRAIN_SIZE = 20000
+TEST_SIZE = 2000
+VALID_SIZE = 2000
 
 MAX_LEN = 30
 MIN_WORD_FREQ = 5
