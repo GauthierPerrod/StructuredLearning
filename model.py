@@ -188,7 +188,7 @@ class DecoderWithAttention(nn.Module):
         self.classifier.weight.data.uniform_(-0.1, 0.1)
 
 
-    def load_pretrained_embeddings(self, embeddings):
+    def load_pretrained_embeddings(self, embeddings, fine_tune=True):
         """
         Loads embedding layer with pre-trained embeddings. If so, 
         the parameters are freezed.
@@ -199,8 +199,9 @@ class DecoderWithAttention(nn.Module):
         """
         self.embedding.weight = nn.Parameter(embeddings)
 
-        for p in self.embedding.parameters():
-            p.requires_grad = False
+        if not fine_tune:
+            for p in self.embedding.parameters():
+                p.requires_grad = False
 
 
     def init_hidden_state(self, encoder_out):

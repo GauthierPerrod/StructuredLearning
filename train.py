@@ -79,7 +79,7 @@ cudnn.benchmark = True
 
 # Training
 START_EPOCH = 0         # To resume training from a checkpoint
-N_EPOCHS = 100 
+N_EPOCHS = 20 
 BATCH_SIZE = 64
 LEARNING_RATE = 5e-4
 
