@@ -48,6 +48,9 @@ from nltk.translate.bleu_score import corpus_bleu
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+from tqdm import tqdm
+
+
 def diff(t_a, t_b):
     t_diff = relativedelta(t_a, t_b)
     return '{h}h {m}m {s}s'.format(h=t_diff.hours, m=t_diff.minutes, s=t_diff.seconds)
@@ -56,7 +59,7 @@ def diff(t_a, t_b):
 
 #=========================================================================================================
 #=========================================================================================================
-#================================ 1. HYPERPARAMETERS
+#================================ 1. HYPERPARAMETERSs
 
 
 
@@ -79,7 +82,7 @@ cudnn.benchmark = True
 
 # Training
 START_EPOCH = 0         # To resume training from a checkpoint
-N_EPOCHS = 20 
+N_EPOCHS = 25 
 BATCH_SIZE = 64
 LEARNING_RATE = 5e-4
 
@@ -107,7 +110,7 @@ print('done')
 print('Loading networks', end='...')
 decoder = DecoderWithAttention(ATTENTION_DIM, EMBBEDING_DIM, DECODER_DIM, 
                                vocab_size, ENCODER_DIM, DROPOUT)
-encoder = Encoder(output_size=10)
+encoder = Encoder(output_size=12)
 print('done')
 
 if START_EPOCH != 0:
@@ -153,7 +156,7 @@ decoder = decoder.to(DEVICE)
 #================================ 3. TRAINING
 
 
-for epoch in range(START_EPOCH, START_EPOCH + N_EPOCHS):
+for epoch in tqdm(range(START_EPOCH, START_EPOCH + N_EPOCHS)):
     decoder.train()
     encoder.train()
     epoch_loss = 0.
