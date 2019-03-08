@@ -214,6 +214,8 @@ for epoch in range(START_EPOCH, START_EPOCH + N_EPOCHS):
     references = []
     hypotheses = []
 
+    valid_loss = 0.
+
     for i, (image, caption, length, allcaptions) in enumerate(valid_loader):
 
         # Batch data
@@ -233,6 +235,12 @@ for epoch in range(START_EPOCH, START_EPOCH + N_EPOCHS):
         scores, _ = pack_padded_sequence(scores, decode_lengths, batch_first=True)
         targets, _ = pack_padded_sequence(targets, decode_lengths, batch_first=True)
 
+        # Compute loss
+        loss = criterion(scores, targets)
+        loss += ALPHA * ((1. - alphas.sum(dim=1)) ** 2).mean()
+
+        # Add doubly stochastic attention regularization
+        loss += ALPHA * ((1. - alphas.sum(dim=1)) ** 2).mean()
         # References
         allcaptions = allcaptions[sort_idx]                          # because images were sorted in the decoder
         for j in range(allcaptions.shape[0]):
@@ -251,9 +259,11 @@ for epoch in range(START_EPOCH, START_EPOCH + N_EPOCHS):
         prediction = temp_preds
         hypotheses.extend(prediction)
 
+        valid_loss += loss.data.item()
+
     # Calculate BLEU-4 scores
     bleu4 = corpus_bleu(references, hypotheses)
 
     # Monitoring performance
-    print('Epoch: %2d, validation bleu-4 score: %.2f\n' % (epoch, bleu4))
+    print('Epoch: %2d, validation bleu-4 score: %.2f, validation loss: %.3f\n' % (epoch, 100 * bleu4, valid_loss))
     torch.save(decoder.state_dict(), "../models/image_captioning_{}.model".format(epoch))
