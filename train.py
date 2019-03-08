@@ -78,10 +78,10 @@ DEVICE = 'cuda:0'
 cudnn.benchmark = True
 
 # Training
-START_EPOCH = 0         # To resume training from a checkpoint
-N_EPOCHS = 20 
+START_EPOCH = 10         # To resume training from a checkpoint
+N_EPOCHS = 10 
 BATCH_SIZE = 64
-LEARNING_RATE = 5e-4
+LEARNING_RATE = 1e-4
 
 GRAD_CLIP = 5.    
 DISPLAY_STEP = 100
@@ -115,7 +115,7 @@ if START_EPOCH != 0:
 
 # Embedding
 if EMBBEDING_DIM == 200:
-    print('Load embeddings', end='...')
+    print('Loading embeddings', end='...')
     embedding, _ = load_embeddings(embedding_file, DATA_FOLDER)
     decoder.load_pretrained_embeddings(embedding, fine_tune=True)
     print('done')

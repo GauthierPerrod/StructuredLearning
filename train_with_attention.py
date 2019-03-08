@@ -117,7 +117,7 @@ if START_EPOCH != 0:
 
 # Embedding
 if EMBBEDING_DIM == 200:
-    print('Load embeddings', end='...')
+    print('Loading embeddings', end='...')
     embedding, _ = load_embeddings(embedding_file, DATA_FOLDER)
     decoder.load_pretrained_embeddings(embedding, fine_tune=True)
     print('done')
