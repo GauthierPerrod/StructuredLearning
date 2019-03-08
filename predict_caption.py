@@ -300,6 +300,8 @@ def caption_image_beam_search(encoder, decoder, image_path, word_map, beam_size=
 
 
 # Same as in training
+ATTENTION = False
+
 DATA_FOLDER = '../datasets/Coco/data/'
 MIN_WORD_FREQ = 5
 N_CAPTIONS = 5
@@ -308,6 +310,7 @@ base_filename = 'COCO_' + str(N_CAPTIONS) + '_cap_per_img_' + str(MIN_WORD_FREQ)
 embedding_file = '../datasets/glove.6B.200d.txt'
 
 ENCODER_DIM = 2048      # ResNet
+ATTENTION_DIM = 512
 EMBBEDING_DIM = 200
 DECODER_DIM = 512
 DROPOUT = 0.3
@@ -315,16 +318,15 @@ DROPOUT = 0.3
 DEVICE = 'cuda:0'
 
 
-LAST_EPOCH = 18
+LAST_EPOCH = 10
 
 
-PATH_IMAGE = '../datasets/Coco/train2014/COCO_train2014_000000000081.jpg'
-PATH_IMAGE = '../datasets/Coco/train2014/COCO_train2014_000000000034.jpg'
-PATH_IMAGE = '../datasets/Coco/train2014/COCO_train2014_000000000110.jpg'
-PATH_IMAGE = '../datasets/Coco/train2014/COCO_train2014_000000000394.jpg'
+PATH_IMAGES = ['../datasets/Coco/train2014/COCO_train2014_000000000081.jpg',
+               '../datasets/Coco/train2014/COCO_train2014_000000000034.jpg',
+               '../datasets/Coco/train2014/COCO_train2014_000000000110.jpg',
+               '../datasets/Coco/train2014/COCO_train2014_000000000394.jpg']
 
-
-k = 3
+k = 4
 
 if __name__ == '__main__':
 
@@ -338,7 +340,14 @@ if __name__ == '__main__':
 
     # Load networks
     print('Loading networks', end='...')
-    decoder = Decoder(EMBBEDING_DIM, DECODER_DIM, vocab_size, ENCODER_DIM, DROPOUT)
+    if ATTENTION:
+        decoder = DecoderWithAttention(ATTENTION_DIM, EMBBEDING_DIM, DECODER_DIM, 
+                                       vocab_size, ENCODER_DIM, DROPOUT)
+    else:   
+        decoder = Decoder(EMBBEDING_DIM, DECODER_DIM, vocab_size, ENCODER_DIM, DROPOUT)
+    print('done')
+
+    print('Loading last weights', end='...')
     decoder.load_state_dict(torch.load('../models/image_captioning_{}.model'.format(LAST_EPOCH)))
     encoder = Encoder(output_size=12)                                                               ## CAREFUL                                                   
     print('done')
@@ -353,9 +362,9 @@ if __name__ == '__main__':
     decoder = decoder.to(DEVICE)
 
     # Beam search
-    seq, _ = caption_image_beam_search(encoder, decoder, PATH_IMAGE, word_map, beam_size=k, with_attention=False)
-
-    idx_to_word = {v: k for k, v in word_map.items()}
-    tokens = [idx_to_word[i] for i in seq]
-    predicted_description = ' '.join(tokens[1:-1])
-    print(predicted_description)
+    for image in  PATH_IMAGES:
+        seq, _ = caption_image_beam_search(encoder, decoder, image, word_map, k, ATTENTION)
+        idx_to_word = {v: k for k, v in word_map.items()}
+        tokens = [idx_to_word[i] for i in seq]
+        predicted_description = ' '.join(tokens[1:-1])
+        print(predicted_description)
