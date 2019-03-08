@@ -156,14 +156,14 @@ decoder = decoder.to(DEVICE)
 #================================ 3. TRAINING
 
 
-for epoch in tqdm(range(START_EPOCH, START_EPOCH + N_EPOCHS)):
+for epoch in range(START_EPOCH, START_EPOCH + N_EPOCHS):
     decoder.train()
     encoder.train()
     epoch_loss = 0.
 
     time = datetime.now()
 
-    for i, (image, caption, length) in enumerate(train_loader):
+    for i, (image, caption, length) in enumerate(tqdm(train_loader)):
 
         # Batch data
         image = image.to(DEVICE)
