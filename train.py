@@ -79,13 +79,15 @@ cudnn.benchmark = True
 
 # Training
 START_EPOCH = 10         # To resume training from a checkpoint
-N_EPOCHS = 10 
+N_EPOCHS = 30 
 BATCH_SIZE = 64
 LEARNING_RATE = 1e-4
 
 GRAD_CLIP = 5.    
 DISPLAY_STEP = 100
 
+
+# BEST_EPOCH = 26
 
 
 #=========================================================================================================
@@ -199,7 +201,7 @@ for epoch in range(START_EPOCH, START_EPOCH + N_EPOCHS):
         epoch_loss += loss.data.item()
 
         if i % DISPLAY_STEP == DISPLAY_STEP-1:
-            print('Step %4d, training loss: %.3f' % (i+1, epoch_loss / i))
+            print('Step %4d, training loss: %.3f' % (i + 1, epoch_loss / (i * BATCH_SIZE)))
 
     print('\nEpoch time: ', diff(datetime.now(), time))
 
@@ -258,5 +260,5 @@ for epoch in range(START_EPOCH, START_EPOCH + N_EPOCHS):
     bleu4 = corpus_bleu(references, hypotheses)
 
     # Monitoring performance
-    print('Epoch: %2d, validation bleu-4 score: %.2f, validation loss: %.3f\n' % (epoch, 100 * bleu4, valid_loss))
+    print('Epoch: %2d, validation bleu-4 score: %.2f, validation loss: %.3f\n' % (epoch, 100 * bleu4, valid_loss / 2000))
     torch.save(decoder.state_dict(), "../models/image_captioning_{}.model".format(epoch))

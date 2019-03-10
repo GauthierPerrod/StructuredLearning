@@ -318,15 +318,26 @@ DROPOUT = 0.3
 DEVICE = 'cuda:0'
 
 
-LAST_EPOCH = 10
+LAST_EPOCH = 26
 
 
-PATH_IMAGES = ['../datasets/Coco/train2014/COCO_train2014_000000000081.jpg',
-               '../datasets/Coco/train2014/COCO_train2014_000000000034.jpg',
+PATH_IMAGES = ['../datasets/Coco/train2014/COCO_train2014_000000000034.jpg',
+               '../datasets/Coco/train2014/COCO_train2014_000000000078.jpg',
+               '../datasets/Coco/train2014/COCO_train2014_000000000081.jpg',
                '../datasets/Coco/train2014/COCO_train2014_000000000110.jpg',
-               '../datasets/Coco/train2014/COCO_train2014_000000000394.jpg']
+               '../datasets/Coco/train2014/COCO_train2014_000000000194.jpg',
+               '../datasets/Coco/train2014/COCO_train2014_000000000263.jpg',
+               '../datasets/Coco/train2014/COCO_train2014_000000000394.jpg',
+               '../datasets/Coco/train2014/COCO_train2014_000000000404.jpg',
+               '../datasets/Coco/train2014/COCO_train2014_000000000431.jpg',
+               '../datasets/Coco/train2014/COCO_train2014_000000000471.jpg',
+               '../datasets/Coco/train2014/COCO_train2014_000000000510.jpg',
+               '../datasets/Coco/train2014/COCO_train2014_000000000656.jpg',
+               '../datasets/Coco/train2014/COCO_train2014_000000000813.jpg',
+               '../datasets/Coco/train2014/COCO_train2014_000000000828.jpg',
+               '../datasets/Coco/train2014/COCO_train2014_000000001098.jpg']
 
-k = 4
+k = 5
 
 if __name__ == '__main__':
 
